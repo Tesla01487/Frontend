@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://teslacoin.co:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://teslacoin.co/api';
 
 interface ApiResponse<T = any> {
   success: boolean;
