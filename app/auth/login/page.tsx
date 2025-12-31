@@ -12,6 +12,7 @@ import { z } from 'zod';
 import toast from 'react-hot-toast';
 import ThemeToggle from '@/components/ui/theme-toggle';
 import { api } from '@/lib/api';
+import { supabase } from '@/lib/supabase'
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -397,6 +398,21 @@ function OTPVerification({
       toast.error('Please enter all 6 digits');
     }
   };
+
+  const handleGoogleLogin = async () => {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
+  })
+
+  if (error) {
+    console.error(error)
+    toast.error('Google login failed')
+  }
+}
+
 
   return (
     <motion.div
