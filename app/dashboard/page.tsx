@@ -216,7 +216,7 @@ export default function DashboardPage() {
                 <Wallet className="w-5 h-5 text-primary" />
               </div>
               <h2 className="text-4xl font-bold mb-2">
-                {formatCurrency(dashboardData.balance)}
+              {formatCurrency(dashboardData.balance).replace('$', '')}
               </h2>
               <div className="flex items-center space-x-4 text-sm">
                 <div className="flex items-center text-success">
