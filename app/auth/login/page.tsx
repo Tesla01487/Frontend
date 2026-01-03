@@ -12,6 +12,7 @@ import { z } from 'zod';
 import toast from 'react-hot-toast';
 import ThemeToggle from '@/components/ui/theme-toggle';
 import { api } from '@/lib/api';
+import { supabase } from '@/lib/supabase'
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -276,6 +277,35 @@ export default function LoginPage() {
             {/* Social Login Buttons */}
             <div className="grid grid-cols-2 gap-4">
               <motion.button
+                type="submit"
+                disabled={isLoading}
+                className="btn-primary w-full"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {isLoading ? (
+                  <div className="spinner w-5 h-5 mx-auto" />
+                ) : (
+                  <span>Sign In</span>
+                )}
+              </motion.button>
+            </form>
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-card text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+
+            {/* Social Login Buttons */}
+            <div className="grid grid-cols-2 gap-4">
+              <motion.button
                 type="button"
                 className="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg border border-border hover:bg-muted transition-colors"
                 whileHover={{ scale: 1.02 }}
@@ -301,6 +331,7 @@ export default function LoginPage() {
                 </svg>
                 <span className="text-sm font-medium">Google</span>
               </motion.button>
+
               <motion.button
                 type="button"
                 className="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg border border-border hover:bg-muted transition-colors"
@@ -397,6 +428,21 @@ function OTPVerification({
       toast.error('Please enter all 6 digits');
     }
   };
+
+  const handleGoogleLogin = async () => {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
+  })
+
+  if (error) {
+    console.error(error)
+    toast.error('Google login failed')
+  }
+}
+
 
   return (
     <motion.div

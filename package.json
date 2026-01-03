@@ -16,11 +16,12 @@
     "@supabase/supabase-js": "^2.75.1",
     "axios": "^1.12.2",
     "clsx": "^2.1.1",
+    "critters": "^0.0.25",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.24",
     "gsap": "^3.13.0",
     "lucide-react": "^0.545.0",
-    "next": "15.5.5",
+    "next": "15.5.9",
     "qrcode.react": "^4.2.0",
     "react": "19.1.0",
     "react-awesome-reveal": "^4.3.1",
@@ -42,7 +43,6 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.5",
-    "react-hot-toast": "^2.6.0",
     "tailwindcss": "^4",
     "typescript": "5.9.3"
   }

@@ -73,7 +73,7 @@ export default function WalletPage() {
 
   // Use real data from API or fallback to 0
   const coinBalance = walletData?.balance || 0;
-  const coinValue = 2.39; // This would come from a market API in production
+  const coinValue = 60.39; // This would come from a market API in production
   const usdValue = coinBalance * coinValue;
   const totalSent = walletData?.statistics?.totalSent || 0;
   const totalReceived = walletData?.statistics?.totalReceived || 0;
@@ -85,7 +85,7 @@ export default function WalletPage() {
     { time: 'Thu', value: 2.5 },
     { time: 'Fri', value: 2.4 },
     { time: 'Sat', value: 2.6 },
-    { time: 'Sun', value: 2.39 },
+    { time: 'Sun', value: 60.39 },
   ];
 
   const balanceHistory = [
