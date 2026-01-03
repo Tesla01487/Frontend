@@ -1,4 +1,4 @@
-: import type { Metadata } from "next"; 
+import type { Metadata } from "next"; 
 import { Inter, JetBrains_Mono } from "next/font/google"; 
 import "./globals.css"; 
 import { ThemeProvider } from "@/components/providers/theme-provider"; 
@@ -15,10 +15,8 @@ subsets: ["latin"],
 display: "swap", 
 }); 
 export const metadata: Metadata = { 
-title: "Tesla - Secure Digital Coin Transfer Platform", 
-description: "Transfer digital coins securely with our premium fintech platform. Features 
-include real-time transactions, QR code transfers, and comprehensive wallet 
-management.", 
+  title: "Tesla - Secure Digital Coin Transfer Platform", 
+  description: "Transfer digital coins securely with our premium fintech platform. Features include real-time transactions, QR code transfers, and comprehensive wallet management.", 
 keywords: ["crypto", "wallet", "digital coins", "fintech", "blockchain", "secure transfer", 
 "tesla"], 
 authors: [{ name: "Tesla Team" }], 

@@ -27,6 +27,7 @@
     "react-awesome-reveal": "^4.3.1",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.65.0",
+    "react-hot-toast": "^2.6.0",
     "react-qr-code": "^2.0.18",
     "react-spring": "^10.0.3",
     "react-toastify": "^11.0.5",

@@ -49,7 +49,7 @@ export default function AdminSupportPage() {
       setLoading(true);
       const response = await api.getAllSupportTickets();
       if (response.success && response.data) {
-        setTickets(response.data);
+        setTickets(response.data as Ticket[]);
       }
     } catch (error) {
       console.error('Error fetching support tickets:', error);
