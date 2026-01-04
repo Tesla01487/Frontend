@@ -242,7 +242,7 @@ export default function DashboardPage() {
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
-                <p className="text-sm text-white/80">Total Transactions</p>
+                <p className="text-muted-foreground">Total Transactions</p>
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                   <span className="text-lg font-bold">#</span>
                 </div>
