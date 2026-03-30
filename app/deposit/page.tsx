@@ -86,7 +86,7 @@ export default function DepositPage() {
               <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                 <li>Deposits are processed within 24 hours</li>
                 <li>Please keep your transaction reference handy</li>
-                <li>Minimum deposit: 100 USDTs</li>
+                <li>Minimum deposit: 100 USDT</li>
                 <li>Ensure payment details are correct</li>
               </ul>
             </div>
@@ -104,7 +104,7 @@ export default function DepositPage() {
             {/* Amount */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Amount (USDTs) *
+                Amount (USDT) *
               </label>
               <div className="relative">
                 <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
@@ -119,7 +119,7 @@ export default function DepositPage() {
                   required
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Minimum: 100 USDTs</p>
+              <p className="text-xs text-muted-foreground mt-1">Minimum: 100 USDT</p>
             </div>
 
             {/* Payment Method */}

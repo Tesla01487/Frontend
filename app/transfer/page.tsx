@@ -154,9 +154,9 @@ export default function TransferPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Transfer USDTs</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">Transfer USDT</h1>
           <p className="text-muted-foreground">
-            Send USDTs to anyone or receive USDTs via wallet ID
+            Send USDT to anyone or receive USDT via wallet ID
           </p>
         </motion.div>
 

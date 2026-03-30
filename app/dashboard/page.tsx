@@ -133,7 +133,7 @@ export default function DashboardPage() {
       });
 
       if (response.success) {
-        toast.success(`Deposit request submitted! USDTs will be credited after admin approval.`);
+        toast.success(`Deposit request submitted! USDT will be credited after admin approval.`);
         setShowBuyModal(false);
         setPurchaseAmount('');
         setUSDTAmount('');
@@ -420,7 +420,7 @@ export default function DashboardPage() {
                       className="p-4 card gradient-primary text-white"
                     >
                       <p className="text-sm mb-1">You will receive</p>
-                      <p className="text-3xl font-bold">{USDTAmount} USDTs</p>
+                      <p className="text-3xl font-bold">{USDTAmount} USDT</p>
                       <p className="text-xs text-white/80 mt-1">Rate: 1 USD = {USDT_RATE} USDT</p>
                     </motion.div>
                   )}
@@ -451,7 +451,7 @@ export default function DashboardPage() {
                     <li>Scan the QR code with {paymentMethod === 'wallet' ? 'your wallet app' : 'GPay/PhonePe/Paytm'}</li>
                     <li>Complete the payment of ${purchaseAmount || '0.00'}</li>
                     <li>Click &quot;Confirm Payment&quot; below after paying</li>
-                    <li>USDTs will be credited to your account</li>
+                    <li>USDT will be credited to your account</li>
                   </ol>
                 </div>
 

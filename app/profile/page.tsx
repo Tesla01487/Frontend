@@ -6,12 +6,6 @@ import {
   User,
   Mail,
   Phone,
-  Camera,
-  Lock,
-  Bell,
-  Shield,
-  Eye,
-  EyeOff,
   Copy,
   Check,
   Wallet,
@@ -33,51 +27,15 @@ const profileSchema = z.object({
   phone: z.string().min(10, 'Phone number must be at least 10 digits'),
 });
 
-const passwordSchema = z
-  .object({
-    currentPassword: z.string().min(6, 'Password must be at least 6 characters'),
-    newPassword: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
-
 type ProfileForm = z.infer<typeof profileSchema>;
-type PasswordForm = z.infer<typeof passwordSchema>;
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<
-    'profile' | 'security' | 'notifications'
-  >('profile');
   const [isEditing, setIsEditing] = useState(false);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [walletId, setWalletId] = useState('');
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
-
-  // User data state
-  const [userData, setUserData] = useState<any>(null);
-  const [accountStats, setAccountStats] = useState({
-    totalTransactions: 0,
-    totalVolume: 0,
-    memberSince: '',
-    accountStatus: 'Active',
-    kycStatus: 'Verified',
-    accountTier: 'Standard'
-  });
-
-  // Settings state
-  const [twoFaEnabled, setTwoFaEnabled] = useState(false);
-  const [biometricEnabled, setBiometricEnabled] = useState(false);
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [pushNotifications, setPushNotifications] = useState(true);
-  const [transactionAlerts, setTransactionAlerts] = useState(true);
 
   const {
     register,
@@ -101,34 +59,10 @@ export default function ProfilePage() {
         const response = await api.getProfile();
         if (response.success && response.data) {
           const user = response.data;
-          setUserData(user);
           setValue('name', user.name || '');
           setValue('email', user.email || '');
           setValue('phone', user.phone || '');
           setWalletId(user.wallet_id || user.walletId || '');
-        }
-
-        // Fetch dashboard data for statistics
-        try {
-          const dashResponse = await api.getDashboard();
-          if (dashResponse.success && dashResponse.data) {
-            const stats = dashResponse.data;
-            const createdDate = stats.created_at || stats.createdAt ? new Date(stats.created_at || stats.createdAt) : new Date();
-            const now = new Date();
-            const daysAgo = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
-            
-            setAccountStats({
-              totalTransactions: stats.statistics?.totalTransactions || stats.transactionCount || 0,
-              totalVolume: stats.statistics?.totalVolume || stats.balance || 0,
-              memberSince: daysAgo > 0 ? `${daysAgo} days` : 'Just joined',
-              accountStatus: stats.status || 'Active',
-              kycStatus: stats.kycStatus || 'Verified',
-              accountTier: stats.tier || 'Standard'
-            });
-          }
-        } catch (dashError) {
-          console.warn('Error fetching dashboard stats:', dashError);
-          // Continue without dashboard data
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -140,6 +74,47 @@ export default function ProfilePage() {
 
     fetchProfile();
   }, [router, setValue]);
+
+  const onProfileSubmit = async (data: ProfileForm) => {
+    setUpdating(true);
+    try {
+      const response = await api.updateProfile({
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+      });
+      
+      if (response.success) {
+        toast.success('Profile updated successfully!');
+        setIsEditing(false);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update profile';
+      toast.error(errorMessage);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const copyWalletId = () => {
+    navigator.clipboard.writeText(walletId);
+    setCopied(true);
+    toast.success('Wallet ID copied to clipboard!');
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen pb-24 lg:pb-8">
+        <Navigation />
+        <main className="container mx-auto px-4 pt-24">
+          <div className="flex items-center justify-center h-96">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   const {
     register: registerPassword,
