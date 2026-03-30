@@ -202,7 +202,7 @@ export default function InvestmentPage() {
               {/* QR Image Integration */}
               <div className="flex flex-col items-center justify-center p-4 bg-white rounded-xl">
                 <img 
-                  src="/companies/qr-code.png" 
+                  src="app/companies/qr-code.jpeg" 
                   alt="Payment QR" 
                   className="w-40 h-40 object-contain"
                 />
