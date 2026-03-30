@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   TrendingUp,
@@ -9,9 +9,13 @@ import {
   Percent,
   ArrowRight,
   Zap,
+  Wallet,
 } from 'lucide-react';
 import Navigation from '@/components/navigation';
 import toast from 'react-hot-toast';
+import { QRCodeSVG } from 'qrcode.react';
+import { api } from '@/lib/api';
+import { useRouter } from 'next/navigation';
 
 interface InvestmentTier {
   id: string;
@@ -74,10 +78,39 @@ const investmentTiers: InvestmentTier[] = [
 ];
 
 export default function InvestmentPage() {
+  const router = useRouter();
   const [selectedTier, setSelectedTier] = useState<InvestmentTier | null>(null);
   const [investmentAmount, setInvestmentAmount] = useState('');
   const [showInvestModal, setShowInvestModal] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const [userWalletId, setUserWalletId] = useState('');
+
+  // ✅ Fetch real wallet ID from API (same as transfer page)
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        if (!api.isAuthenticated()) {
+          toast.error('Please login to invest');
+          router.push('/auth/login');
+          return;
+        }
+        const response = await api.getDashboard();
+        if (response.success && response.data) {
+          const data = response.data as {
+            name: string;
+            email: string;
+            walletId: string;
+            balance: number;
+          };
+          setUserWalletId(data.walletId || '');
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        toast.error('Failed to load wallet data');
+      }
+    };
+    fetchUserData();
+  }, [router]);
 
   const calculateReturns = (amount: number, tier: InvestmentTier) => {
     const dailyReturn = (amount * tier.dailyReturn) / 100;
@@ -90,6 +123,7 @@ export default function InvestmentPage() {
     };
   };
 
+  // ✅ Invest Now → validates then opens Receive USDT popup with wallet ID + QR
   const handleInvestNow = () => {
     if (!selectedTier) {
       toast.error('Please select an investment tier');
@@ -108,6 +142,7 @@ export default function InvestmentPage() {
     setShowPopup(true);
   };
 
+  // Withdraw → opens confirm modal
   const handleWithdraw = () => {
     if (!selectedTier) {
       toast.error('Please select an investment tier');
@@ -193,7 +228,6 @@ export default function InvestmentPage() {
                   : 'border-border hover:border-primary/50'
               }`}
             >
-              {/* Tier Name */}
               <div className="mb-4">
                 <h3 className="text-xl font-bold mb-1">{tier.description}</h3>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -204,7 +238,6 @@ export default function InvestmentPage() {
                 </div>
               </div>
 
-              {/* Investment Details */}
               <div className="space-y-4 mb-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -239,7 +272,6 @@ export default function InvestmentPage() {
                 </div>
               </div>
 
-              {/* Select Button */}
               <button
                 onClick={() => setSelectedTier(tier)}
                 className={`w-full py-2 rounded-lg font-semibold transition-all ${
@@ -354,7 +386,6 @@ export default function InvestmentPage() {
 
               {/* Action Buttons */}
               <div className="flex gap-4">
-                {/* ✅ Invest Now → opens Receive USDT popup */}
                 <motion.button
                   onClick={handleInvestNow}
                   className="flex-1 btn-primary flex items-center justify-center gap-2 py-3"
@@ -365,7 +396,6 @@ export default function InvestmentPage() {
                   Invest Now
                 </motion.button>
 
-                {/* Withdraw → opens invest/confirm modal */}
                 <motion.button
                   onClick={handleWithdraw}
                   className="flex-1 btn-primary flex items-center justify-center gap-2 py-3"
@@ -401,56 +431,86 @@ export default function InvestmentPage() {
         )}
       </main>
 
-      {/* ✅ Receive USDT Popup — moved outside <main>, triggered by Invest Now */}
+      {/* ✅ Invest Now Popup — Real Wallet ID + QR Code (mirrors transfer page) */}
       {showPopup && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             className="bg-card p-6 rounded-2xl w-full max-w-md relative"
           >
-            {/* Close Button */}
+            {/* Close */}
             <button
               onClick={() => setShowPopup(false)}
-              className="absolute top-3 right-3 text-gray-400 hover:text-white"
+              className="absolute top-3 right-3 text-gray-400 hover:text-white text-xl"
             >
               ✕
             </button>
 
-            {/* Popup Content */}
-            <div className="text-center mb-8">
+            {/* Header */}
+            <div className="text-center mb-6">
               <div className="w-20 h-20 rounded-full gradient-primary flex items-center justify-center mx-auto mb-4">
-                <DollarSign className="w-10 h-10 text-white" />
+                <Wallet className="w-10 h-10 text-white" />
               </div>
-              <h2 className="text-2xl font-bold mb-2">Receive USDTs</h2>
-              <p className="text-muted-foreground">Share your wallet ID to receive USDTs</p>
+              <h2 className="text-2xl font-bold mb-1">Receive USDTs</h2>
+              <p className="text-muted-foreground text-sm">
+                Send{' '}
+                <span className="font-bold text-primary">${investmentAmount} USDT</span>{' '}
+                to the wallet below to activate your investment
+              </p>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-5">
+              {/* Wallet ID row */}
               <div>
                 <label className="block text-sm font-medium mb-2">Your Wallet ID</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    value="YOUR_WALLET_ID_HERE"
+                    value={userWalletId}
                     readOnly
-                    className="input flex-1 font-mono"
+                    className="input flex-1 font-mono text-sm"
                   />
                   <motion.button
                     onClick={() => {
-                      navigator.clipboard.writeText('YOUR_WALLET_ID_HERE');
-                      toast.success('Copied!');
+                      navigator.clipboard.writeText(userWalletId);
+                      toast.success('Wallet ID copied!');
                     }}
-                    className="btn-primary px-6"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    className="btn-primary px-5"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
                     Copy
                   </motion.button>
                 </div>
               </div>
 
-              <div className="text-center text-sm text-muted-foreground">Or scan QR code</div>
+              {/* Divider */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-card text-muted-foreground">Or scan QR code</span>
+                </div>
+              </div>
+
+              {/* QR Code — white background so it's always scannable */}
+              <div className="flex justify-center p-6 bg-white rounded-xl">
+                <QRCodeSVG value={userWalletId || 'N/A'} size={180} level="H" />
+              </div>
+
+              {/* Info tip */}
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <p className="text-xs text-center text-muted-foreground">
+                  💡 Send exactly{' '}
+                  <span className="font-semibold text-foreground">${investmentAmount} USDT</span>{' '}
+                  to activate your{' '}
+                  <span className="font-semibold text-foreground">
+                    {selectedTier?.description}
+                  </span>
+                </p>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -458,7 +518,7 @@ export default function InvestmentPage() {
 
       {/* Withdraw Confirmation Modal */}
       {showInvestModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -466,7 +526,7 @@ export default function InvestmentPage() {
           >
             <button
               onClick={() => setShowInvestModal(false)}
-              className="absolute top-3 right-3 text-gray-400 hover:text-white"
+              className="absolute top-3 right-3 text-gray-400 hover:text-white text-xl"
             >
               ✕
             </button>
