@@ -77,43 +77,57 @@ export default function InvestmentPage() {
   const [selectedTier, setSelectedTier] = useState<InvestmentTier | null>(null);
   const [investmentAmount, setInvestmentAmount] = useState('');
   const [showInvestModal, setShowInvestModal] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
 
   const calculateReturns = (amount: number, tier: InvestmentTier) => {
     const dailyReturn = (amount * tier.dailyReturn) / 100;
     const totalReturn = dailyReturn * tier.days;
     const totalValue = amount + totalReturn;
-    return { dailyReturn: dailyReturn.toFixed(2), totalReturn: totalReturn.toFixed(2), totalValue: totalValue.toFixed(2) };
+    return {
+      dailyReturn: dailyReturn.toFixed(2),
+      totalReturn: totalReturn.toFixed(2),
+      totalValue: totalValue.toFixed(2),
+    };
   };
 
-  const handleInvest = () => {
+  const handleInvestNow = () => {
     if (!selectedTier) {
       toast.error('Please select an investment tier');
       return;
     }
-
-    if (!investmentAmount || parseFloat(investmentAmount) < selectedTier.min || parseFloat(investmentAmount) > selectedTier.max) {
+    if (
+      !investmentAmount ||
+      parseFloat(investmentAmount) < selectedTier.min ||
+      parseFloat(investmentAmount) > selectedTier.max
+    ) {
       toast.error(
         `Investment amount must be between $${selectedTier.min} and $${selectedTier.max}`
       );
       return;
     }
-
-    setShowInvestModal(true);
+    setShowPopup(true);
   };
 
-  const handlePay = () => {
-    if (!investmentAmount) {
-      toast.error('Please enter an investment amount');
+  const handleWithdraw = () => {
+    if (!selectedTier) {
+      toast.error('Please select an investment tier');
       return;
     }
-    
-    toast.success('Payment processing initiated');
-    // Add payment processing logic here
+    if (
+      !investmentAmount ||
+      parseFloat(investmentAmount) < selectedTier.min ||
+      parseFloat(investmentAmount) > selectedTier.max
+    ) {
+      toast.error(
+        `Investment amount must be between $${selectedTier.min} and $${selectedTier.max}`
+      );
+      return;
+    }
+    setShowInvestModal(true);
   };
 
   const handleConfirmInvestment = async () => {
     try {
-      // Add API call here to confirm investment
       toast.success('Investment confirmed successfully!');
       setShowInvestModal(false);
       setInvestmentAmount('');
@@ -152,7 +166,8 @@ export default function InvestmentPage() {
             <div>
               <h3 className="text-lg font-bold mb-1">Flexible Investment Options</h3>
               <p className="text-white/90">
-                Invest between $100 and $50,000 with daily returns based on your investment tier. Your capital is returned after the investment period ends.
+                Invest between $100 and $50,000 with daily returns based on your investment tier.
+                Your capital is returned after the investment period ends.
               </p>
             </div>
           </div>
@@ -183,13 +198,14 @@ export default function InvestmentPage() {
                 <h3 className="text-xl font-bold mb-1">{tier.description}</h3>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <DollarSign className="w-4 h-4" />
-                  <span>${tier.min.toLocaleString()} - ${tier.max.toLocaleString()}</span>
+                  <span>
+                    ${tier.min.toLocaleString()} - ${tier.max.toLocaleString()}
+                  </span>
                 </div>
               </div>
 
               {/* Investment Details */}
               <div className="space-y-4 mb-6">
-                {/* Daily Return */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Percent className="w-4 h-4 text-muted-foreground" />
@@ -198,7 +214,6 @@ export default function InvestmentPage() {
                   <span className="text-lg font-bold text-success">{tier.dailyReturn}%</span>
                 </div>
 
-                {/* Duration */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-muted-foreground" />
@@ -207,7 +222,6 @@ export default function InvestmentPage() {
                   <span className="text-lg font-bold">{tier.days} days</span>
                 </div>
 
-                {/* Total Return (example with $1000) */}
                 <div className="pt-3 border-t border-border">
                   <p className="text-xs text-muted-foreground mb-2">Example: $1,000 investment</p>
                   <div className="flex items-center justify-between">
@@ -216,7 +230,10 @@ export default function InvestmentPage() {
                       <span className="text-sm text-muted-foreground">Total Return</span>
                     </div>
                     <span className="font-bold text-success">
-                      ${(1000 * tier.dailyReturn * tier.days / 100).toLocaleString('en-US', { maximumFractionDigits: 2 })}
+                      $
+                      {((1000 * tier.dailyReturn * tier.days) / 100).toLocaleString('en-US', {
+                        maximumFractionDigits: 2,
+                      })}
                     </span>
                   </div>
                 </div>
@@ -271,7 +288,9 @@ export default function InvestmentPage() {
 
               {/* Investment Amount Input */}
               <div>
-                <label className="block text-sm font-medium mb-2">Investment Amount (USDT)</label>
+                <label className="block text-sm font-medium mb-2">
+                  Investment Amount (USDT)
+                </label>
                 <div className="relative">
                   <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <input
@@ -285,56 +304,59 @@ export default function InvestmentPage() {
                   />
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Valid range: ${selectedTier.min.toLocaleString()} - ${selectedTier.max.toLocaleString()}
+                  Valid range: ${selectedTier.min.toLocaleString()} - $
+                  {selectedTier.max.toLocaleString()}
                 </p>
               </div>
 
               {/* Investment Returns Preview */}
-              {investmentAmount && parseFloat(investmentAmount) >= selectedTier.min && parseFloat(investmentAmount) <= selectedTier.max && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-success/10 border border-success rounded-xl p-4"
-                >
-                  {(() => {
-                    const amount = parseFloat(investmentAmount);
-                    const returns = calculateReturns(amount, selectedTier);
-                    return (
-                      <>
-                        <h4 className="font-semibold mb-3 text-success">Your Investment Returns</h4>
-                        <div className="grid grid-cols-3 gap-4 text-sm">
-                          <div>
-                            <p className="text-muted-foreground text-xs mb-1">Daily Earning</p>
-                            <p className="font-bold text-success text-lg">${returns.dailyReturn}</p>
+              {investmentAmount &&
+                parseFloat(investmentAmount) >= selectedTier.min &&
+                parseFloat(investmentAmount) <= selectedTier.max && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-success/10 border border-success rounded-xl p-4"
+                  >
+                    {(() => {
+                      const amount = parseFloat(investmentAmount);
+                      const returns = calculateReturns(amount, selectedTier);
+                      return (
+                        <>
+                          <h4 className="font-semibold mb-3 text-success">
+                            Your Investment Returns
+                          </h4>
+                          <div className="grid grid-cols-3 gap-4 text-sm">
+                            <div>
+                              <p className="text-muted-foreground text-xs mb-1">Daily Earning</p>
+                              <p className="font-bold text-success text-lg">
+                                ${returns.dailyReturn}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground text-xs mb-1">Total Return</p>
+                              <p className="font-bold text-success text-lg">
+                                ${returns.totalReturn}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground text-xs mb-1">Total Value</p>
+                              <p className="font-bold text-success text-lg">
+                                ${returns.totalValue}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-muted-foreground text-xs mb-1">Total Return</p>
-                            <p className="font-bold text-success text-lg">${returns.totalReturn}</p>
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground text-xs mb-1">Total Value</p>
-                            <p className="font-bold text-success text-lg">${returns.totalValue}</p>
-                          </div>
-                        </div>
-                      </>
-                    );
-                  })()}
-                </motion.div>
-              )}
+                        </>
+                      );
+                    })()}
+                  </motion.div>
+                )}
 
               {/* Action Buttons */}
               <div className="flex gap-4">
+                {/* ✅ Invest Now → opens Receive USDT popup */}
                 <motion.button
-                  onClick={handlePay}
-                  className="flex-1 btn-primary flex items-center justify-center gap-2 py-3"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <DollarSign className="w-5 h-5" />
-                  Pay
-                </motion.button>
-                <motion.button
-                  onClick={handleInvest}
+                  onClick={handleInvestNow}
                   className="flex-1 btn-primary flex items-center justify-center gap-2 py-3"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -342,10 +364,22 @@ export default function InvestmentPage() {
                   <ArrowRight className="w-5 h-5" />
                   Invest Now
                 </motion.button>
+
+                {/* Withdraw → opens invest/confirm modal */}
+                <motion.button
+                  onClick={handleWithdraw}
+                  className="flex-1 btn-primary flex items-center justify-center gap-2 py-3"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <DollarSign className="w-5 h-5" />
+                  Withdraw
+                </motion.button>
               </div>
 
               <p className="text-xs text-muted-foreground text-center">
-                By investing, you agree to our investment terms and conditions. Your capital will be returned after the investment period ends.
+                By investing, you agree to our investment terms and conditions. Your capital will
+                be returned after the investment period ends.
               </p>
             </div>
           </motion.div>
@@ -366,6 +400,99 @@ export default function InvestmentPage() {
           </motion.div>
         )}
       </main>
+
+      {/* ✅ Receive USDT Popup — moved outside <main>, triggered by Invest Now */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-card p-6 rounded-2xl w-full max-w-md relative"
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setShowPopup(false)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-white"
+            >
+              ✕
+            </button>
+
+            {/* Popup Content */}
+            <div className="text-center mb-8">
+              <div className="w-20 h-20 rounded-full gradient-primary flex items-center justify-center mx-auto mb-4">
+                <DollarSign className="w-10 h-10 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold mb-2">Receive USDTs</h2>
+              <p className="text-muted-foreground">Share your wallet ID to receive USDTs</p>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium mb-2">Your Wallet ID</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value="YOUR_WALLET_ID_HERE"
+                    readOnly
+                    className="input flex-1 font-mono"
+                  />
+                  <motion.button
+                    onClick={() => {
+                      navigator.clipboard.writeText('YOUR_WALLET_ID_HERE');
+                      toast.success('Copied!');
+                    }}
+                    className="btn-primary px-6"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Copy
+                  </motion.button>
+                </div>
+              </div>
+
+              <div className="text-center text-sm text-muted-foreground">Or scan QR code</div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Withdraw Confirmation Modal */}
+      {showInvestModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-card p-6 rounded-2xl w-full max-w-md relative"
+          >
+            <button
+              onClick={() => setShowInvestModal(false)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-white"
+            >
+              ✕
+            </button>
+            <h2 className="text-2xl font-bold mb-4">Confirm Withdrawal</h2>
+            <p className="text-muted-foreground mb-6">
+              Are you sure you want to withdraw from this investment?
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setShowInvestModal(false)}
+                className="flex-1 border border-border rounded-lg py-2 font-semibold hover:bg-muted transition-all"
+              >
+                Cancel
+              </button>
+              <motion.button
+                onClick={handleConfirmInvestment}
+                className="flex-1 btn-primary py-2"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Confirm
+              </motion.button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
