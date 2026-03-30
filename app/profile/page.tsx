@@ -61,6 +61,17 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
+  // User data state
+  const [userData, setUserData] = useState<any>(null);
+  const [accountStats, setAccountStats] = useState({
+    totalTransactions: 0,
+    totalVolume: 0,
+    memberSince: '',
+    accountStatus: 'Active',
+    kycStatus: 'Verified',
+    accountTier: 'Standard'
+  });
+
   // Settings state
   const [twoFaEnabled, setTwoFaEnabled] = useState(false);
   const [biometricEnabled, setBiometricEnabled] = useState(false);
@@ -90,10 +101,29 @@ export default function ProfilePage() {
         const response = await api.getProfile();
         if (response.success && response.data) {
           const user = response.data;
+          setUserData(user);
           setValue('name', user.name || '');
           setValue('email', user.email || '');
           setValue('phone', user.phone || '');
           setWalletId(user.wallet_id || user.walletId || '');
+        }
+
+        // Fetch dashboard data for statistics
+        const dashResponse = await api.getDashboard();
+        if (dashResponse.success && dashResponse.data) {
+          const stats = dashResponse.data;
+          const createdDate = new Date(stats.created_at || stats.createdAt || new Date());
+          const now = new Date();
+          const daysAgo = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
+          
+          setAccountStats({
+            totalTransactions: stats.statistics?.totalTransactions || stats.transactionCount || 0,
+            totalVolume: stats.statistics?.totalVolume || stats.balance || 0,
+            memberSince: `${daysAgo} days`,
+            accountStatus: stats.status || 'Active',
+            kycStatus: stats.kycStatus || 'Verified',
+            accountTier: stats.tier || 'Standard'
+          });
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -417,18 +447,41 @@ export default function ProfilePage() {
               </div>
 
               {/* Account Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div className="card p-6 text-center">
-                  <div className="text-3xl font-bold text-primary mb-2">156</div>
+                  <div className="text-3xl font-bold text-primary mb-2">{accountStats.totalTransactions}</div>
                   <p className="text-sm text-muted-foreground">Total Transactions</p>
                 </div>
                 <div className="card p-6 text-center">
-                  <div className="text-3xl font-bold text-success mb-2">45 days</div>
+                  <div className="text-3xl font-bold text-success mb-2">{accountStats.memberSince}</div>
                   <p className="text-sm text-muted-foreground">Member Since</p>
                 </div>
                 <div className="card p-6 text-center">
-                  <div className="text-3xl font-bold text-warning mb-2">$2.5K</div>
+                  <div className="text-3xl font-bold text-warning mb-2">{formatCurrency(accountStats.totalVolume)}</div>
                   <p className="text-sm text-muted-foreground">Total Volume</p>
+                </div>
+              </div>
+
+              {/* Account Information */}
+              <div className="card p-6 mb-6">
+                <h3 className="text-xl font-bold mb-6">Account Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="p-4 bg-muted rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">Account Status</p>
+                    <p className="text-lg font-semibold text-success">{accountStats.accountStatus}</p>
+                  </div>
+                  <div className="p-4 bg-muted rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">KYC Status</p>
+                    <p className="text-lg font-semibold text-success">{accountStats.kycStatus}</p>
+                  </div>
+                  <div className="p-4 bg-muted rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">Account Tier</p>
+                    <p className="text-lg font-semibold text-primary">{accountStats.accountTier}</p>
+                  </div>
+                  <div className="p-4 bg-muted rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">Join Date</p>
+                    <p className="text-lg font-semibold">{userData?.created_at ? new Date(userData.created_at).toLocaleDateString() : 'N/A'}</p>
+                  </div>
                 </div>
               </div>
             </div>
