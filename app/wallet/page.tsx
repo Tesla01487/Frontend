@@ -33,6 +33,68 @@ export default function WalletPage() {
   const [timeframe, setTimeframe] = useState('7d');
   const [loading, setLoading] = useState(true);
   const [walletData, setWalletData] = useState<any>(null);
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [currentUSDTPrice, setCurrentUSDTPrice] = useState(0);
+
+  // Fetch live USDT price data
+  useEffect(() => {
+    const fetchUSDTPriceData = async () => {
+      try {
+        // Map timeframe to CoinGecko days parameter
+        const daysMap: { [key: string]: string } = {
+          '24h': '1',
+          '7d': '7',
+          '30d': '30',
+          '1y': '365',
+          'All': 'max'
+        };
+
+        const days = daysMap[timeframe] || '7';
+        
+        // Fetch historical USDT price data from CoinGecko
+        const response = await fetch(
+          `https://api.coingecko.com/api/v3/coins/tether/market_chart?vs_currency=usd&days=${days}&interval=daily`
+        );
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          // Get current price
+          if (data.prices && data.prices.length > 0) {
+            const latestPrice = data.prices[data.prices.length - 1][1];
+            setCurrentUSDTPrice(latestPrice);
+          }
+
+          // Format chart data
+          const formattedData = data.prices.map((priceData: [number, number], index: number) => {
+            const date = new Date(priceData[0]);
+            const timeLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            let label = '';
+
+            if (timeframe === '24h') {
+              label = date.getHours() + ':00';
+            } else if (timeframe === '7d') {
+              label = timeLabels[date.getDay()];
+            } else {
+              label = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }
+
+            return {
+              time: label,
+              value: parseFloat(priceData[1].toFixed(2))
+            };
+          });
+
+          setChartData(formattedData);
+        }
+      } catch (error) {
+        console.error('Error fetching USDT price data:', error);
+        toast.error('Failed to load USDT price data');
+      }
+    };
+
+    fetchUSDTPriceData();
+  }, [timeframe]);
 
   useEffect(() => {
     const fetchWalletData = async () => {
@@ -73,20 +135,10 @@ export default function WalletPage() {
 
   // Use real data from API or fallback to 0
   const USDTBalance = walletData?.balance || 0;
-  const USDTValue = 60.39; // This would come from a market API in production
+  const USDTValue = currentUSDTPrice || 1; // Live price from CoinGecko API
   const usdValue = USDTBalance * USDTValue;
   const totalSent = walletData?.statistics?.totalSent || 0;
   const totalReceived = walletData?.statistics?.totalReceived || 0;
-
-  const chartData = [
-    { time: 'Mon', value: 2.1 },
-    { time: 'Tue', value: 2.3 },
-    { time: 'Wed', value: 2.2 },
-    { time: 'Thu', value: 2.5 },
-    { time: 'Fri', value: 2.4 },
-    { time: 'Sat', value: 2.6 },
-    { time: 'Sun', value: 60.39 },
-  ];
 
   const balanceHistory = [
     { date: 'Jan', balance: 4200 },
@@ -234,7 +286,7 @@ export default function WalletPage() {
                   stroke="currentColor"
                   opacity={0.5}
                   fontSize={12}
-                  domain={['dataMin - 0.1', 'dataMax + 0.1']}
+                  domain={['dataMin - 0.01', 'dataMax + 0.01']}
                 />
                 <Tooltip
                   contentStyle={{
