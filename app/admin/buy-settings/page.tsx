@@ -110,9 +110,9 @@ export default function BuySettingsPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold mb-2">Buy Coins Settings</h1>
+          <h1 className="text-3xl font-bold mb-2">Buy USDTs Settings</h1>
           <p className="text-muted-foreground">
-            Configure payment QR code and wallet details for users to buy coins
+            Configure payment QR code and wallet details for users to buy USDTs
           </p>
         </motion.div>
 
@@ -225,7 +225,7 @@ export default function BuySettingsPage() {
                       <span className="font-semibold">QR Code Active</span>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Users can now scan this QR code to buy coins
+                      Users can now scan this QR code to buy USDTs
                     </p>
                   </div>
                 </div>
@@ -280,7 +280,7 @@ export default function BuySettingsPage() {
               <div>
                 <h4 className="font-semibold mb-1">Auto Credit</h4>
                 <p className="text-sm text-muted-foreground">
-                  Coins are credited to user&apos;s wallet automatically
+                  USDTs are credited to user&apos;s wallet automatically
                 </p>
               </div>
             </div>

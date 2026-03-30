@@ -15,14 +15,14 @@ subsets: ["latin"],
 display: "swap", 
 }); 
 export const metadata: Metadata = { 
-  title: "Tesla - Secure Digital Coin Transfer Platform", 
-  description: "Transfer digital coins securely with our premium fintech platform. Features include real-time transactions, QR code transfers, and comprehensive wallet management.", 
-keywords: ["crypto", "wallet", "digital coins", "fintech", "blockchain", "secure transfer", 
+  title: "Tesla - Secure Digital USDT Transfer Platform", 
+  description: "Transfer digital USDTs securely with our premium fintech platform. Features include real-time transactions, QR code transfers, and comprehensive wallet management.", 
+keywords: ["crypto", "wallet", "digital USDTs", "fintech", "blockchain", "secure transfer", 
 "tesla"], 
 authors: [{ name: "Tesla Team" }], 
 openGraph: { 
-title: "Tesla - Secure Digital Coin Transfer", 
-description: "Premium fintech platform for secure digital coin transfers", 
+title: "Tesla - Secure Digital USDT Transfer", 
+description: "Premium fintech platform for secure digital USDT transfers", 
 type: "website", 
 }, 
 viewport: { 

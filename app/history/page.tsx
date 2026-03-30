@@ -140,7 +140,7 @@ export default function HistoryPage() {
                   <span className="text-sm text-success font-medium">Received</span>
                 </div>
                 <h3 className="text-2xl font-bold">{formatNumber(stats.totalReceived)}</h3>
-                <p className="text-sm text-muted-foreground">Total coins received</p>
+                <p className="text-sm text-muted-foreground">Total USDTs received</p>
               </div>
               
               <div className="card p-6">
@@ -149,7 +149,7 @@ export default function HistoryPage() {
                   <span className="text-sm text-primary font-medium">Sent</span>
                 </div>
                 <h3 className="text-2xl font-bold">{formatNumber(stats.totalSent)}</h3>
-                <p className="text-sm text-muted-foreground">Total coins sent</p>
+                <p className="text-sm text-muted-foreground">Total USDTs sent</p>
               </div>
               
               <div className="card p-6">

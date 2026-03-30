@@ -54,7 +54,7 @@ export default function TransferPage() {
     const fetchUserData = async () => {
       try {
         if (!api.isAuthenticated()) {
-          toast.error('Please login to transfer coins');
+          toast.error('Please login to transfer USDTs');
           router.push('/auth/login');
           return;
         }
@@ -105,7 +105,7 @@ export default function TransferPage() {
 
     setIsLoading(true);
     try {
-      const response = await api.transferCoins({
+      const response = await api.transferUSDTs({
         recipientWalletId: transferData.recipient, // Form field is 'recipient', API expects 'recipientWalletId'
         amount: parseFloat(transferData.amount),
         note: transferData.note || '',
@@ -154,9 +154,9 @@ export default function TransferPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Transfer Coins</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">Transfer USDTs</h1>
           <p className="text-muted-foreground">
-            Send coins to anyone or receive coins via wallet ID
+            Send USDTs to anyone or receive USDTs via wallet ID
           </p>
         </motion.div>
 
@@ -249,7 +249,7 @@ export default function TransferPage() {
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.3 }}
             >
-              <ReceiveCoins walletId={userWalletId} />
+              <ReceiveUSDTs walletId={userWalletId} />
             </motion.div>
           )}
 
@@ -308,11 +308,11 @@ function SendForm({
       >
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-2xl font-bold">Send Coins</h2>
+            <h2 className="text-2xl font-bold">Send USDTs</h2>
             <div className="text-right">
               <p className="text-sm text-muted-foreground">Available Balance</p>
               <p className="text-xl font-bold text-primary">
-                {formatNumber(balance)} coins
+                {formatNumber(balance)} USDTs
               </p>
             </div>
           </div>
@@ -350,7 +350,7 @@ function SendForm({
                 className="input pl-10"
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                coins
+                USDTs
               </div>
             </div>
             {errors.amount && (
@@ -445,7 +445,7 @@ function ConfirmTransfer({
           <div className="flex justify-between p-4 bg-muted rounded-lg">
             <span className="text-muted-foreground">Amount</span>
             <span className="font-bold text-xl text-primary">
-              {formatNumber(Number(data.amount))} coins
+              {formatNumber(Number(data.amount))} USDTs
             </span>
           </div>
           {data.note && (
@@ -605,7 +605,7 @@ function TransferSuccess({
           <div className="flex justify-between p-4 bg-muted rounded-lg">
             <span className="text-muted-foreground">Amount Sent</span>
             <span className="font-bold text-xl">
-              {formatNumber(Number(data.amount))} coins
+              {formatNumber(Number(data.amount))} USDTs
             </span>
           </div>
           <div className="flex justify-between p-4 bg-muted rounded-lg">
@@ -641,8 +641,8 @@ function TransferSuccess({
   );
 }
 
-// Receive Coins Component
-function ReceiveCoins({ walletId }: { walletId: string }) {
+// Receive USDTs Component
+function ReceiveUSDTs({ walletId }: { walletId: string }) {
   const copyToClipboard = () => {
     navigator.clipboard.writeText(walletId);
     toast.success('Wallet ID copied to clipboard!');
@@ -659,9 +659,9 @@ function ReceiveCoins({ walletId }: { walletId: string }) {
           <div className="w-20 h-20 rounded-full gradient-primary flex items-center justify-center mx-auto mb-4">
             <Wallet className="w-10 h-10 text-white" />
           </div>
-          <h2 className="text-2xl font-bold mb-2">Receive Coins</h2>
+          <h2 className="text-2xl font-bold mb-2">Receive USDTs</h2>
           <p className="text-muted-foreground">
-            Share your wallet ID to receive coins
+            Share your wallet ID to receive USDTs
           </p>
         </div>
 
@@ -705,7 +705,7 @@ function ReceiveCoins({ walletId }: { walletId: string }) {
 
           <div className="p-4 bg-primary/10 rounded-lg">
             <p className="text-sm text-center text-muted-foreground">
-              💡 Anyone can send coins to you using your Wallet ID or by scanning
+              💡 Anyone can send USDTs to you using your Wallet ID or by scanning
               your QR code
             </p>
           </div>

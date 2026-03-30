@@ -111,7 +111,7 @@ export default function Home() {
     {
       icon: Zap,
       title: "Instant Transfers",
-      description: "Lightning-fast coin transfers with real-time confirmation"
+      description: "Lightning-fast USDT transfers with real-time confirmation"
     },
     {
       icon: Globe,
@@ -130,7 +130,7 @@ export default function Home() {
     },
     {
       icon: Lock,
-      title: "Your Keys, Your Coins",
+      title: "Your Keys, Your USDTs",
       description: "Full control and ownership of your digital assets"
     }
   ];
@@ -156,7 +156,7 @@ export default function Home() {
               <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 Tesla
               </h1>
-              <p className="text-xs text-muted-foreground">Digital Coins</p>
+              <p className="text-xs text-muted-foreground">Digital USDTs</p>
             </div>
           </motion.div>
           
@@ -203,7 +203,7 @@ export default function Home() {
               transition={{ delay: 0.2, duration: 0.8 }}
               className="text-5xl md:text-7xl font-bold mb-6 leading-tight"
             >
-              Transfer Digital Coins
+              Transfer Digital USDTs
               <br />
               <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
                 Securely & Instantly
@@ -217,7 +217,7 @@ export default function Home() {
               className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto"
             >
               Experience the future of digital finance with our premium platform. 
-              Send, receive, and manage your digital coins with ease and security.
+              Send, receive, and manage your digital USDTs with ease and security.
             </motion.p>
 
             <motion.div
@@ -345,7 +345,7 @@ export default function Home() {
                 Ready to Get Started?
               </h2>
               <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-                Join thousands of users who trust Tesla for their digital coin transactions
+                Join thousands of users who trust Tesla for their digital USDT transactions
               </p>
               <Link href="/auth/register">
                 <motion.button
@@ -374,7 +374,7 @@ export default function Home() {
                 <span className="text-lg font-bold">Tesla</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Secure digital coin transfer platform for the modern world.
+                Secure digital USDT transfer platform for the modern world.
               </p>
             </div>
             

@@ -59,9 +59,9 @@ export default function DashboardPage() {
   const [adminQRCodeImage, setAdminQRCodeImage] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'upi'>('wallet');
   const [purchaseAmount, setPurchaseAmount] = useState('');
-  const [coinAmount, setCoinAmount] = useState('');
+  const [USDTAmount, setUSDTAmount] = useState('');
   const [processingPayment, setProcessingPayment] = useState(false);
-  const COIN_RATE = 1; // 1 USD = 1 Coin (adjust as needed)
+  const USDT_RATE = 1; // 1 USD = 1 USDT (adjust as needed)
 
   const fetchDashboardData = async () => {
     try {
@@ -94,7 +94,7 @@ export default function DashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleBuyCoins = () => {
+  const handleBuyUSDTs = () => {
     // Load admin settings
     const savedSettings = localStorage.getItem('adminBuySettings');
     if (savedSettings) {
@@ -114,7 +114,7 @@ export default function DashboardPage() {
   const handleAmountChange = (value: string) => {
     setPurchaseAmount(value);
     const amount = parseFloat(value) || 0;
-    setCoinAmount((amount * COIN_RATE).toFixed(2));
+    setUSDTAmount((amount * USDT_RATE).toFixed(2));
   };
 
   const handleConfirmPurchase = async () => {
@@ -133,10 +133,10 @@ export default function DashboardPage() {
       });
 
       if (response.success) {
-        toast.success(`Deposit request submitted! Coins will be credited after admin approval.`);
+        toast.success(`Deposit request submitted! USDTs will be credited after admin approval.`);
         setShowBuyModal(false);
         setPurchaseAmount('');
-        setCoinAmount('');
+        setUSDTAmount('');
         fetchDashboardData(); // Fetch latest data after transaction
       } else {
         toast.error(response.message || 'Failed to submit deposit request');
@@ -153,7 +153,7 @@ export default function DashboardPage() {
     { icon: Send, label: 'Send', href: '/transfer', color: 'from-primary to-secondary' },
     { icon: Download, label: 'Receive', href: '/wallet', color: 'from-secondary to-primary' },
     { icon: QrCode, label: 'QR Code', href: '/transfer?tab=qr', color: 'from-primary to-secondary' },
-    { icon: Plus, label: 'Buy Coins', onClick: handleBuyCoins, color: 'from-secondary to-primary' },
+    { icon: Plus, label: 'Buy USDTs', onClick: handleBuyUSDTs, color: 'from-secondary to-primary' },
   ];
 
   if (loading) {
@@ -216,7 +216,7 @@ export default function DashboardPage() {
                 <Wallet className="w-5 h-5 text-primary" />
               </div>
               <h2 className="text-4xl font-bold mb-2">
-              {formatCurrency(dashboardData.balance).replace('$', '')}
+              ${formatCurrency(dashboardData.balance).replace('$', '')}
               </h2>
               <div className="flex items-center space-x-4 text-sm">
                 <div className="flex items-center text-success">
@@ -366,7 +366,7 @@ export default function DashboardPage() {
         </motion.div>
       </main>
 
-      {/* Buy Coins Modal */}
+      {/* Buy USDTs Modal */}
       {showBuyModal && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -392,7 +392,7 @@ export default function DashboardPage() {
 
             {/* Title */}
             <h2 className="text-2xl font-bold mb-6 text-center mt-2">
-              Buy Crypto Coins
+              Buy Crypto USDTs
             </h2>
 
             {adminQRCodeImage ? (
@@ -421,8 +421,8 @@ export default function DashboardPage() {
                       className="p-4 card gradient-primary text-white"
                     >
                       <p className="text-sm mb-1">You will receive</p>
-                      <p className="text-3xl font-bold">{coinAmount} Coins</p>
-                      <p className="text-xs text-white/80 mt-1">Rate: 1 USD = {COIN_RATE} Coin</p>
+                      <p className="text-3xl font-bold">{USDTAmount} USDTs</p>
+                      <p className="text-xs text-white/80 mt-1">Rate: 1 USD = {USDT_RATE} USDT</p>
                     </motion.div>
                   )}
                 </div>
@@ -452,7 +452,7 @@ export default function DashboardPage() {
                     <li>Scan the QR code with {paymentMethod === 'wallet' ? 'your wallet app' : 'GPay/PhonePe/Paytm'}</li>
                     <li>Complete the payment of ${purchaseAmount || '0.00'}</li>
                     <li>Click &quot;Confirm Payment&quot; below after paying</li>
-                    <li>Coins will be credited to your account</li>
+                    <li>USDTs will be credited to your account</li>
                   </ol>
                 </div>
 

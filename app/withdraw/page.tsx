@@ -46,7 +46,7 @@ export default function WithdrawPage() {
     }
 
     if (amount < 100) {
-      toast.error('Minimum withdrawal amount is 100 coins');
+      toast.error('Minimum withdrawal amount is 100 USDTs');
       return;
     }
 
@@ -118,7 +118,7 @@ export default function WithdrawPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground mb-1">Available Balance</p>
-              <p className="text-3xl font-bold text-foreground">{currentBalance.toFixed(2)} <span className="text-lg text-muted-foreground">coins</span></p>
+              <p className="text-3xl font-bold text-foreground">{currentBalance.toFixed(2)} <span className="text-lg text-muted-foreground">USDTs</span></p>
             </div>
             <div className="w-16 h-16 bg-success/20 rounded-full flex items-center justify-center">
               <DollarSign className="text-success" size={32} />
@@ -139,7 +139,7 @@ export default function WithdrawPage() {
               <p className="font-semibold mb-2">Important Information:</p>
               <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                 <li>Withdrawals are processed within 2-3 business days</li>
-                <li>Minimum withdrawal: 100 coins</li>
+                <li>Minimum withdrawal: 100 USDTs</li>
                 <li>Ensure bank details are accurate</li>
                 <li>Processing fee may apply</li>
               </ul>
@@ -158,7 +158,7 @@ export default function WithdrawPage() {
             {/* Amount */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Withdrawal Amount (Coins) *
+                Withdrawal Amount (USDTs) *
               </label>
               <div className="relative">
                 <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
@@ -175,7 +175,7 @@ export default function WithdrawPage() {
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Minimum: 100 coins | Available: {currentBalance.toFixed(2)} coins
+                Minimum: 100 USDTs | Available: {currentBalance.toFixed(2)} USDTs
               </p>
             </div>
 
@@ -286,7 +286,7 @@ export default function WithdrawPage() {
 
             {currentBalance < 100 && (
               <p className="text-center text-sm text-error">
-                Insufficient balance for withdrawal (minimum 100 coins required)
+                Insufficient balance for withdrawal (minimum 100 USDTs required)
               </p>
             )}
           </form>

@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://teslacoin.co/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://teslaUSDT.co/api';
 
 interface ApiResponse<T = any> {
   success: boolean;
@@ -274,7 +274,7 @@ class ApiClient {
     });
   }
 
-  async transferCoins(data: {
+  async transferUSDTs(data: {
     recipientWalletId: string;
     amount: number;
     note?: string;

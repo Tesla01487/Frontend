@@ -72,9 +72,9 @@ export default function WalletPage() {
   }
 
   // Use real data from API or fallback to 0
-  const coinBalance = walletData?.balance || 0;
-  const coinValue = 60.39; // This would come from a market API in production
-  const usdValue = coinBalance * coinValue;
+  const USDTBalance = walletData?.balance || 0;
+  const USDTValue = 60.39; // This would come from a market API in production
+  const usdValue = USDTBalance * USDTValue;
   const totalSent = walletData?.statistics?.totalSent || 0;
   const totalReceived = walletData?.statistics?.totalReceived || 0;
 
@@ -112,7 +112,7 @@ export default function WalletPage() {
         >
           <h1 className="text-3xl md:text-4xl font-bold mb-2">My Wallet</h1>
           <p className="text-muted-foreground">
-            Manage your digital coins and track value
+            Manage your digital USDTs and track value
           </p>
         </motion.div>
 
@@ -128,15 +128,15 @@ export default function WalletPage() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <p className="text-sm text-muted-foreground mb-2">
-                  Total Coin Balance
+                  Total USDT Balance
                 </p>
                 <h2 className="text-5xl font-bold mb-2">
-                  {formatNumber(coinBalance)}
-                  <span className="text-2xl text-muted-foreground ml-2">coins</span>
+                  {formatNumber(USDTBalance)}
+                  <span className="text-2xl text-muted-foreground ml-2">USDTs</span>
                 </h2>
-                <p className="text-xl text-muted-foreground">
+                {/* <p className="text-xl text-muted-foreground">
                   ≈ {formatCurrency(usdValue)}
-                </p>
+                </p> */}
               </div>
               <div className="w-20 h-20 rounded-full gradient-primary flex items-center justify-center">
                 <WalletIcon className="w-10 h-10 text-white" />
@@ -176,7 +176,7 @@ export default function WalletPage() {
           </div>
         </motion.div>
 
-        {/* Coin Value Chart */}
+        {/* USDT Value Chart */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -185,9 +185,9 @@ export default function WalletPage() {
         >
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-xl font-bold mb-1">Coin Value</h3>
+              <h3 className="text-xl font-bold mb-1">USDT Value</h3>
               <div className="flex items-center space-x-3">
-                <p className="text-2xl font-bold">${coinValue}</p>
+                <p className="text-2xl font-bold">${USDTValue}</p>
                 <div className="flex items-center text-success text-sm">
                   <TrendingUp className="w-4 h-4 mr-1" />
                   <span>+5.2%</span>
@@ -273,7 +273,7 @@ export default function WalletPage() {
           <div className="mb-6">
             <h3 className="text-xl font-bold mb-1">Balance History</h3>
             <p className="text-sm text-muted-foreground">
-              Your coin balance over time
+              Your USDT balance over time
             </p>
           </div>
 
@@ -304,7 +304,7 @@ export default function WalletPage() {
                     border: '1px solid var(--border)',
                     borderRadius: '0.5rem',
                   }}
-                  formatter={(value: number) => [formatNumber(value), 'Coins']}
+                  formatter={(value: number) => [formatNumber(value), 'USDTs']}
                 />
                 <Area
                   type="monotone"
@@ -333,7 +333,7 @@ export default function WalletPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Total Received</p>
                 <p className="text-2xl font-bold">{formatNumber(totalReceived)}</p>
-                <p className="text-xs text-muted-foreground">coins</p>
+                <p className="text-xs text-muted-foreground">USDTs</p>
               </div>
             </div>
           </motion.div>
@@ -351,7 +351,7 @@ export default function WalletPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Total Sent</p>
                 <p className="text-2xl font-bold">{formatNumber(totalSent)}</p>
-                <p className="text-xs text-muted-foreground">coins</p>
+                <p className="text-xs text-muted-foreground">USDTs</p>
               </div>
             </div>
           </motion.div>
@@ -368,8 +368,8 @@ export default function WalletPage() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Current Value</p>
-                <p className="text-2xl font-bold">${coinValue.toFixed(2)}</p>
-                <p className="text-xs text-muted-foreground">per coin</p>
+                <p className="text-2xl font-bold">${USDTValue.toFixed(2)}</p>
+                <p className="text-xs text-muted-foreground">per USDT</p>
               </div>
             </div>
           </motion.div>

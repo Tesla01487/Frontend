@@ -158,7 +158,7 @@ export default function RegisterPage() {
             <h1 className="text-3xl font-bold mb-2">Create Account</h1>
             <p className="text-muted-foreground">
               {step === 1
-                ? 'Sign up to start managing your digital coins'
+                ? 'Sign up to start managing your digital USDTs'
                 : 'Enter the OTP sent to your phone'}
             </p>
           </div>

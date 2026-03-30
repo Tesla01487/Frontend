@@ -55,7 +55,7 @@ interface ChartDataPoint {
   volume: number;
 }
 
-const categories = ['All', 'Cryptocurrency', 'Technology', 'Stablecoin'];
+const categories = ['All', 'Cryptocurrency', 'Technology', 'StableUSDT'];
 
 export default function CompaniesPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -69,8 +69,8 @@ export default function CompaniesPage() {
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [adminQRCodeImage, setAdminQRCodeImage] = useState('');
   const [purchaseAmount, setPurchaseAmount] = useState('');
-  const [coinAmount, setCoinAmount] = useState('');
-  const COIN_RATE = 1; // 1 USD = 1 Coin
+  const [USDTAmount, setUSDTAmount] = useState('');
+  const USDT_RATE = 1; // 1 USD = 1 USDT
 
   // Fetch companies on mount
   useEffect(() => {
@@ -179,7 +179,7 @@ export default function CompaniesPage() {
   const handleAmountChange = (value: string) => {
     setPurchaseAmount(value);
     const amount = parseFloat(value) || 0;
-    setCoinAmount((amount * COIN_RATE).toFixed(2));
+    setUSDTAmount((amount * USDT_RATE).toFixed(2));
   };
 
   const formatMarketCap = (marketCap: number) => {
@@ -583,8 +583,8 @@ export default function CompaniesPage() {
                         className="p-4 card gradient-primary text-white"
                       >
                         <p className="text-sm mb-1">You will receive</p>
-                        <p className="text-3xl font-bold">{coinAmount} Coins</p>
-                        <p className="text-xs text-white/80 mt-1">Rate: 1 USD = {COIN_RATE} Coin</p>
+                        <p className="text-3xl font-bold">{USDTAmount} USDTs</p>
+                        <p className="text-xs text-white/80 mt-1">Rate: 1 USD = {USDT_RATE} USDT</p>
                       </motion.div>
                     )}
                   </div>
@@ -607,7 +607,7 @@ export default function CompaniesPage() {
                       <li>Scan the QR code with your payment app</li>
                       <li>Complete the payment of ${purchaseAmount || '0.00'}</li>
                       <li>Click &quot;Confirm Payment&quot; below after paying</li>
-                      <li>Coins will be credited to your account after admin approval</li>
+                      <li>USDTs will be credited to your account after admin approval</li>
                     </ol>
                   </div>
 
@@ -624,10 +624,10 @@ export default function CompaniesPage() {
                           paymentMethod: 'wallet',
                         });
                         if (response.success) {
-                          toast.success('Deposit request submitted! Coins will be credited after admin approval.');
+                          toast.success('Deposit request submitted! USDTs will be credited after admin approval.');
                           setShowBuyModal(false);
                           setPurchaseAmount('');
-                          setCoinAmount('');
+                          setUSDTAmount('');
                           await fetchCompanies();
                         } else {
                           toast.error(response.message || 'Failed to submit deposit request');

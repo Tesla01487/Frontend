@@ -47,7 +47,7 @@ const faqs: FAQ[] = [
   },
   {
     id: '2',
-    question: 'How do I transfer coins to another user?',
+    question: 'How do I transfer USDTs to another user?',
     answer:
       'Go to the Transfer page, enter the recipient\'s wallet ID or username, specify the amount, and enter your PIN to confirm the transaction.',
     category: 'Transfers',
@@ -63,7 +63,7 @@ const faqs: FAQ[] = [
     id: '4',
     question: 'What are the transaction fees?',
     answer:
-      'Currently, all transactions on our platform are free. We do not charge any fees for sending or receiving coins.',
+      'Currently, all transactions on our platform are free. We do not charge any fees for sending or receiving USDTs.',
     category: 'Fees',
   },
   {
@@ -77,7 +77,7 @@ const faqs: FAQ[] = [
     id: '6',
     question: 'Can I use QR codes for transfers?',
     answer:
-      'Yes! Generate a QR code from the Transfer page under the "Receive" tab. Others can scan it to send you coins instantly.',
+      'Yes! Generate a QR code from the Transfer page under the "Receive" tab. Others can scan it to send you USDTs instantly.',
     category: 'Transfers',
   },
   {

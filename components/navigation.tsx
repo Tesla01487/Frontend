@@ -84,7 +84,7 @@ export default function Navigation() {
                 <div>
                   <h1 className="text-xl font-bold gradient-text">Tesla</h1>
                   <p className="text-xs text-muted-foreground">
-                    Digital Coins
+                    Digital USDTs
                   </p>
                 </div>
               </motion.div>
