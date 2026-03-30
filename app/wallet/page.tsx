@@ -196,7 +196,7 @@ export default function WalletPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -205,15 +205,6 @@ export default function WalletPage() {
               >
                 <Upload className="w-5 h-5" />
                 <span>Deposit</span>
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => router.push('/withdraw')}
-                className="btn-secondary flex items-center justify-center space-x-2"
-              >
-                <Download className="w-5 h-5" />
-                <span>Withdraw</span>
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.02 }}
