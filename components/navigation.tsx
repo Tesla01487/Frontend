@@ -7,7 +7,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Home,
-  Wallet,
   ArrowLeftRight,
   History,
   User,
@@ -24,7 +23,6 @@ import { toast } from "react-hot-toast";
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
-  { name: "Wallet", href: "/wallet", icon: Wallet },
   { name: "Transfer", href: "/transfer", icon: ArrowLeftRight },
   { name: "Companies", href: "/companies", icon: Building2 },
   { name: "History", href: "/history", icon: History },
