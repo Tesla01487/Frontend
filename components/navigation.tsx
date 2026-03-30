@@ -24,7 +24,7 @@ import { toast } from "react-hot-toast";
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Transfer", href: "/transfer", icon: ArrowLeftRight },
-  { name: "Companies", href: "/companies", icon: Building2 },
+  { name: "Investment", href: "/companies", icon: Building2 },
   { name: "History", href: "/history", icon: History },
   { name: "Profile", href: "/profile", icon: User },
   { name: "Help", href: "/help", icon: HelpCircle },
