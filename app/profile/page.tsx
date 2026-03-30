@@ -6,6 +6,12 @@ import {
   User,
   Mail,
   Phone,
+  Camera,
+  Lock,
+  Bell,
+  Shield,
+  Eye,
+  EyeOff,
   Copy,
   Check,
   Wallet,
@@ -27,15 +33,40 @@ const profileSchema = z.object({
   phone: z.string().min(10, 'Phone number must be at least 10 digits'),
 });
 
+const passwordSchema = z
+  .object({
+    currentPassword: z.string().min(6, 'Password must be at least 6 characters'),
+    newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
+
 type ProfileForm = z.infer<typeof profileSchema>;
+type PasswordForm = z.infer<typeof passwordSchema>;
 
 export default function ProfilePage() {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<
+    'profile' | 'security' | 'notifications'
+  >('profile');
   const [isEditing, setIsEditing] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [walletId, setWalletId] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+
+  // Settings state
+  const [twoFaEnabled, setTwoFaEnabled] = useState(false);
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [pushNotifications, setPushNotifications] = useState(true);
+  const [transactionAlerts, setTransactionAlerts] = useState(true);
 
   const {
     register,
@@ -74,47 +105,6 @@ export default function ProfilePage() {
 
     fetchProfile();
   }, [router, setValue]);
-
-  const onProfileSubmit = async (data: ProfileForm) => {
-    setUpdating(true);
-    try {
-      const response = await api.updateProfile({
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-      });
-      
-      if (response.success) {
-        toast.success('Profile updated successfully!');
-        setIsEditing(false);
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to update profile';
-      toast.error(errorMessage);
-    } finally {
-      setUpdating(false);
-    }
-  };
-
-  const copyWalletId = () => {
-    navigator.clipboard.writeText(walletId);
-    setCopied(true);
-    toast.success('Wallet ID copied to clipboard!');
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen pb-24 lg:pb-8">
-        <Navigation />
-        <main className="container mx-auto px-4 pt-24">
-          <div className="flex items-center justify-center h-96">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   const {
     register: registerPassword,
@@ -427,46 +417,18 @@ export default function ProfilePage() {
               </div>
 
               {/* Account Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="card p-6 text-center">
-                  <div className="text-3xl font-bold text-primary mb-2">{accountStats.totalTransactions}</div>
+                  <div className="text-3xl font-bold text-primary mb-2">156</div>
                   <p className="text-sm text-muted-foreground">Total Transactions</p>
                 </div>
                 <div className="card p-6 text-center">
-                  <div className="text-3xl font-bold text-success mb-2">{accountStats.memberSince}</div>
+                  <div className="text-3xl font-bold text-success mb-2">45 days</div>
                   <p className="text-sm text-muted-foreground">Member Since</p>
                 </div>
                 <div className="card p-6 text-center">
-                  <div className="text-3xl font-bold text-warning mb-2">
-                    ${parseFloat(String(accountStats.totalVolume || 0)).toLocaleString('en-US', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </div>
+                  <div className="text-3xl font-bold text-warning mb-2">$2.5K</div>
                   <p className="text-sm text-muted-foreground">Total Volume</p>
-                </div>
-              </div>
-
-              {/* Account Information */}
-              <div className="card p-6 mb-6">
-                <h3 className="text-xl font-bold mb-6">Account Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="p-4 bg-muted rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Account Status</p>
-                    <p className="text-lg font-semibold text-success">{accountStats.accountStatus}</p>
-                  </div>
-                  <div className="p-4 bg-muted rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">KYC Status</p>
-                    <p className="text-lg font-semibold text-success">{accountStats.kycStatus}</p>
-                  </div>
-                  <div className="p-4 bg-muted rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Account Tier</p>
-                    <p className="text-lg font-semibold text-primary">{accountStats.accountTier}</p>
-                  </div>
-                  <div className="p-4 bg-muted rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Join Date</p>
-                    <p className="text-lg font-semibold">{userData?.created_at ? new Date(userData.created_at).toLocaleDateString() : 'N/A'}</p>
-                  </div>
                 </div>
               </div>
             </div>
