@@ -164,7 +164,7 @@ export default function WalletPage() {
         >
           <h1 className="text-3xl md:text-4xl font-bold mb-2">My Wallet</h1>
           <p className="text-muted-foreground">
-            Manage your digital USDTs and track value
+            Manage your digital USDT and track value
           </p>
         </motion.div>
 
@@ -184,7 +184,7 @@ export default function WalletPage() {
                 </p>
                 <h2 className="text-5xl font-bold mb-2">
                   {formatNumber(USDTBalance)}
-                  <span className="text-2xl text-muted-foreground ml-2">USDTs</span>
+                  <span className="text-2xl text-muted-foreground ml-2">USDT</span>
                 </h2>
                 {/* <p className="text-xl text-muted-foreground">
                   ≈ {formatCurrency(usdValue)}
@@ -356,7 +356,7 @@ export default function WalletPage() {
                     border: '1px solid var(--border)',
                     borderRadius: '0.5rem',
                   }}
-                  formatter={(value: number) => [formatNumber(value), 'USDTs']}
+                  formatter={(value: number) => [formatNumber(value), 'USDT']}
                 />
                 <Area
                   type="monotone"
@@ -385,7 +385,7 @@ export default function WalletPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Total Received</p>
                 <p className="text-2xl font-bold">{formatNumber(totalReceived)}</p>
-                <p className="text-xs text-muted-foreground">USDTs</p>
+                <p className="text-xs text-muted-foreground">USDT</p>
               </div>
             </div>
           </motion.div>
@@ -403,7 +403,7 @@ export default function WalletPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Total Sent</p>
                 <p className="text-2xl font-bold">{formatNumber(totalSent)}</p>
-                <p className="text-xs text-muted-foreground">USDTs</p>
+                <p className="text-xs text-muted-foreground">USDT</p>
               </div>
             </div>
           </motion.div>
