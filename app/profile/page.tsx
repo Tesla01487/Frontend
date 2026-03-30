@@ -26,6 +26,7 @@ import { z } from 'zod';
 import toast from 'react-hot-toast';
 import { api } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import { formatCurrency } from '@/lib/utils';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -109,21 +110,26 @@ export default function ProfilePage() {
         }
 
         // Fetch dashboard data for statistics
-        const dashResponse = await api.getDashboard();
-        if (dashResponse.success && dashResponse.data) {
-          const stats = dashResponse.data;
-          const createdDate = new Date(stats.created_at || stats.createdAt || new Date());
-          const now = new Date();
-          const daysAgo = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
-          
-          setAccountStats({
-            totalTransactions: stats.statistics?.totalTransactions || stats.transactionCount || 0,
-            totalVolume: stats.statistics?.totalVolume || stats.balance || 0,
-            memberSince: `${daysAgo} days`,
-            accountStatus: stats.status || 'Active',
-            kycStatus: stats.kycStatus || 'Verified',
-            accountTier: stats.tier || 'Standard'
-          });
+        try {
+          const dashResponse = await api.getDashboard();
+          if (dashResponse.success && dashResponse.data) {
+            const stats = dashResponse.data;
+            const createdDate = stats.created_at || stats.createdAt ? new Date(stats.created_at || stats.createdAt) : new Date();
+            const now = new Date();
+            const daysAgo = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
+            
+            setAccountStats({
+              totalTransactions: stats.statistics?.totalTransactions || stats.transactionCount || 0,
+              totalVolume: stats.statistics?.totalVolume || stats.balance || 0,
+              memberSince: daysAgo > 0 ? `${daysAgo} days` : 'Just joined',
+              accountStatus: stats.status || 'Active',
+              kycStatus: stats.kycStatus || 'Verified',
+              accountTier: stats.tier || 'Standard'
+            });
+          }
+        } catch (dashError) {
+          console.warn('Error fetching dashboard stats:', dashError);
+          // Continue without dashboard data
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -457,7 +463,7 @@ export default function ProfilePage() {
                   <p className="text-sm text-muted-foreground">Member Since</p>
                 </div>
                 <div className="card p-6 text-center">
-                  <div className="text-3xl font-bold text-warning mb-2">{formatCurrency(accountStats.totalVolume)}</div>
+                  <div className="text-3xl font-bold text-warning mb-2">{formatCurrency(parseFloat(String(accountStats.totalVolume || 0)))}</div>
                   <p className="text-sm text-muted-foreground">Total Volume</p>
                 </div>
               </div>
