@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Wallet, 
   TrendingUp, 
   TrendingDown, 
   ArrowUpRight, 
@@ -11,9 +10,7 @@ import {
   Send,
   Download,
   QrCode,
-  Plus,
   Loader2,
-  X
 } from 'lucide-react';
 import Navigation from '@/components/navigation';
 import { formatCurrency } from '@/lib/utils';
@@ -55,13 +52,6 @@ export default function DashboardPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-  const [showBuyModal, setShowBuyModal] = useState(false);
-  const [adminQRCodeImage, setAdminQRCodeImage] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'upi'>('wallet');
-  const [purchaseAmount, setPurchaseAmount] = useState('');
-  const [USDTAmount, setUSDTAmount] = useState('');
-  const [processingPayment, setProcessingPayment] = useState(false);
-  const USDT_RATE = 1; // 1 USD = 1 USDT (adjust as needed)
 
   const fetchDashboardData = async () => {
     try {
@@ -94,66 +84,10 @@ export default function DashboardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleBuyUSDTs = () => {
-    // Load admin settings
-    const savedSettings = localStorage.getItem('adminBuySettings');
-    if (savedSettings) {
-      const settings = JSON.parse(savedSettings);
-      setAdminQRCodeImage(settings.qrCodeImage || '');
-      setPaymentMethod(settings.paymentMethod || 'wallet');
-    }
-    
-    if (!savedSettings || !JSON.parse(savedSettings).qrCodeImage) {
-      toast.error('Admin has not configured buy settings yet');
-      return;
-    }
-    
-    setShowBuyModal(true);
-  };
-
-  const handleAmountChange = (value: string) => {
-    setPurchaseAmount(value);
-    const amount = parseFloat(value) || 0;
-    setUSDTAmount((amount * USDT_RATE).toFixed(2));
-  };
-
-  const handleConfirmPurchase = async () => {
-    try {
-      if (!purchaseAmount || parseFloat(purchaseAmount) <= 0) {
-        toast.error('Please enter a valid amount');
-        return;
-      }
-
-      setProcessingPayment(true);
-
-      // Call backend to create deposit transaction
-      const response = await api.requestDeposit({
-        amount: parseFloat(purchaseAmount),
-        paymentMethod: 'wallet',
-      });
-
-      if (response.success) {
-        toast.success(`Deposit request submitted! USDTs will be credited after admin approval.`);
-        setShowBuyModal(false);
-        setPurchaseAmount('');
-        setUSDTAmount('');
-        fetchDashboardData(); // Fetch latest data after transaction
-      } else {
-        toast.error(response.message || 'Failed to submit deposit request');
-      }
-    } catch (error) {
-      console.error('Payment error:', error);
-      toast.error(error instanceof Error ? error.message : 'Payment failed. Please try again.');
-    } finally {
-      setProcessingPayment(false);
-    }
-  };
-
   const quickActions = [
     { icon: Send, label: 'Send', href: '/transfer', color: 'from-primary to-secondary' },
     { icon: Download, label: 'Receive', href: '/wallet', color: 'from-secondary to-primary' },
     { icon: QrCode, label: 'QR Code', href: '/transfer?tab=qr', color: 'from-primary to-secondary' },
-    { icon: Plus, label: 'Buy USDTs', onClick: handleBuyUSDTs, color: 'from-secondary to-primary' },
   ];
 
   if (loading) {
@@ -365,134 +299,6 @@ export default function DashboardPage() {
           )}
         </motion.div>
       </main>
-
-      {/* Buy USDTs Modal */}
-      {showBuyModal && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={() => setShowBuyModal(false)}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            onClick={(e) => e.stopPropagation()}
-            className="card p-8 max-w-md w-full relative"
-          >
-            {/* Close Button */}
-            <button
-              onClick={() => setShowBuyModal(false)}
-              className="absolute top-4 right-4 p-2 hover:bg-muted rounded-lg transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            {/* Title */}
-            <h2 className="text-2xl font-bold mb-6 text-center mt-2">
-              Buy Crypto USDTs
-            </h2>
-
-            {adminQRCodeImage ? (
-              <>
-                {/* Amount Input Section */}
-                <div className="mb-6 space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Enter Amount (USD) *
-                    </label>
-                    <input
-                      type="number"
-                      value={purchaseAmount}
-                      onChange={(e) => handleAmountChange(e.target.value)}
-                      placeholder="0.00"
-                      min="1"
-                      step="0.01"
-                      className="input w-full text-lg"
-                    />
-                  </div>
-
-                  {purchaseAmount && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="p-4 card gradient-primary text-white"
-                    >
-                      <p className="text-sm mb-1">You will receive</p>
-                      <p className="text-3xl font-bold">{USDTAmount} USDTs</p>
-                      <p className="text-xs text-white/80 mt-1">Rate: 1 USD = {USDT_RATE} USDT</p>
-                    </motion.div>
-                  )}
-                </div>
-
-                {/* QR Code */}
-                <div className="bg-white p-6 rounded-xl mb-6 flex items-center justify-center">
-                  {adminQRCodeImage ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={adminQRCodeImage}
-                      alt="Payment QR Code"
-                      className="w-full h-auto max-w-[250px]"
-                    />
-                  ) : (
-                    <div className="text-center py-8">
-                      <QrCode className="w-16 h-16 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">QR Code not available</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Instructions */}
-                <div className="card p-4 bg-muted/50 mb-6">
-                  <h4 className="font-semibold mb-2">Payment Steps:</h4>
-                  <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-                    <li>Enter the amount you want to spend</li>
-                    <li>Scan the QR code with {paymentMethod === 'wallet' ? 'your wallet app' : 'GPay/PhonePe/Paytm'}</li>
-                    <li>Complete the payment of ${purchaseAmount || '0.00'}</li>
-                    <li>Click &quot;Confirm Payment&quot; below after paying</li>
-                    <li>USDTs will be credited to your account</li>
-                  </ol>
-                </div>
-
-                {/* Confirm Payment Button */}
-                <button
-                  onClick={handleConfirmPurchase}
-                  disabled={!purchaseAmount || parseFloat(purchaseAmount) <= 0 || processingPayment}
-                  className="w-full btn-primary py-3 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {processingPayment ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Processing Payment...
-                    </>
-                  ) : (
-                    <>
-                      Confirm Payment
-                    </>
-                  )}
-                </button>
-
-                {/* Help */}
-                <div className="text-center mt-4">
-                  <Link href="/help" className="text-sm text-primary hover:underline">
-                    Need help? Contact Support
-                  </Link>
-                </div>
-              </>
-            ) : (
-              <div className="text-center py-12">
-                <QrCode className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground mb-2">Payment system not configured</p>
-                <p className="text-sm text-muted-foreground">
-                  Please contact admin to set up payment details
-                </p>
-              </div>
-            )}
-          </motion.div>
-        </motion.div>
-      )}
     </div>
   );
 }
