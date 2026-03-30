@@ -26,7 +26,6 @@ import { z } from 'zod';
 import toast from 'react-hot-toast';
 import { api } from '@/lib/api';
 import { useRouter } from 'next/navigation';
-import { formatCurrency } from '@/lib/utils';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -463,7 +462,12 @@ export default function ProfilePage() {
                   <p className="text-sm text-muted-foreground">Member Since</p>
                 </div>
                 <div className="card p-6 text-center">
-                  <div className="text-3xl font-bold text-warning mb-2">{formatCurrency(parseFloat(String(accountStats.totalVolume || 0)))}</div>
+                  <div className="text-3xl font-bold text-warning mb-2">
+                    ${parseFloat(String(accountStats.totalVolume || 0)).toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </div>
                   <p className="text-sm text-muted-foreground">Total Volume</p>
                 </div>
               </div>
