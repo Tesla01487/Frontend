@@ -463,7 +463,7 @@ export default function InvestmentPage() {
             <div className="space-y-5">
               {/* Wallet ID row */}
               <div>
-                <label className="block text-sm font-medium mb-2">Your Wallet ID</label>
+                <label className="block text-sm font-medium mb-2">Wallet ID</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
