@@ -551,6 +551,12 @@ class ApiClient {
     });
   }
 
+  async generateReferralCode() {
+    return this.request('/referrals/generate', {
+      method: 'POST',
+    });
+  }
+
   async depositWithReferral(data: {
     amount: number;
     paymentMethod: string;

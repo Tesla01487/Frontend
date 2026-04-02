@@ -101,8 +101,31 @@ export default function DashboardPage() {
     try {
       // Fetch referral code
       const codeResponse = await api.getMyReferralCode();
-      if (codeResponse.success && codeResponse.data) {
+      if (codeResponse.success && codeResponse.data && codeResponse.data.code) {
         setReferralCode(codeResponse.data.code);
+        // Store in localStorage as backup
+        localStorage.setItem('userReferralCode', codeResponse.data.code);
+      } else {
+        // If no code exists, generate one
+        const generateResponse = await api.generateReferralCode();
+        if (generateResponse.success && generateResponse.data) {
+          const newCode = generateResponse.data.code;
+          setReferralCode(newCode);
+          localStorage.setItem('userReferralCode', newCode);
+          toast.success('Referral code generated successfully!');
+        } else {
+          // Fallback: check localStorage
+          const storedCode = localStorage.getItem('userReferralCode');
+          if (storedCode) {
+            setReferralCode(storedCode);
+          } else {
+            // Generate a unique code locally if backend fails
+            const user = api.getUser();
+            const localCode = `${user?.walletId?.slice(0, 6) || 'USER'}${Date.now().toString(36).toUpperCase()}`;
+            setReferralCode(localCode);
+            localStorage.setItem('userReferralCode', localCode);
+          }
+        }
       }
 
       // Fetch referral stats
@@ -118,6 +141,17 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error('Referral data fetch error:', error);
+      // Fallback to localStorage
+      const storedCode = localStorage.getItem('userReferralCode');
+      if (storedCode) {
+        setReferralCode(storedCode);
+      } else {
+        // Generate a unique code locally as last resort
+        const user = api.getUser();
+        const localCode = `${user?.walletId?.slice(0, 6) || 'USER'}${Date.now().toString(36).toUpperCase()}`;
+        setReferralCode(localCode);
+        localStorage.setItem('userReferralCode', localCode);
+      }
     }
   };
 
@@ -188,6 +222,28 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('Payment error:', error);
       toast.error(error instanceof Error ? error.message : 'Payment failed. Please try again.');
+    } finally {
+      setProcessingPayment(false);
+    }
+  };
+
+  const handleGenerateReferralCode = async () => {
+    try {
+      setProcessingPayment(true); // Reusing for loading state
+      const response = await api.generateReferralCode();
+      
+      if (response.success && response.data) {
+        const newCode = response.data.code;
+        setReferralCode(newCode);
+        localStorage.setItem('userReferralCode', newCode);
+        toast.success('New referral code generated! 🎉');
+        fetchReferralData(); // Refresh data
+      } else {
+        toast.error('Failed to generate referral code');
+      }
+    } catch (error) {
+      console.error('Generate code error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to generate code');
     } finally {
       setProcessingPayment(false);
     }
@@ -315,8 +371,8 @@ export default function DashboardPage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
-            className="card p-6 relative overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={() => setShowReferralModal(true)}
+            className={`card p-6 relative overflow-hidden ${referralCode ? 'cursor-pointer hover:shadow-lg' : ''} transition-shadow`}
+            onClick={() => referralCode && setShowReferralModal(true)}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-orange-500/10" />
             <div className="relative z-10">
@@ -324,20 +380,34 @@ export default function DashboardPage() {
                 <p className="text-sm text-muted-foreground">Referral Earnings</p>
                 <Share2 className="w-5 h-5 text-amber-500" />
               </div>
-              <h2 className="text-4xl font-bold mb-2 text-amber-500">
-                {referralEarnings.toFixed(2)}
-              </h2>
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  {referralStats?.totalReferrals || 0} referrals
-                </p>
-                <button
-                  onClick={() => setShowReferralModal(true)}
-                  className="text-xs px-2 py-1 bg-amber-500/20 text-amber-600 rounded hover:bg-amber-500/30 transition-colors"
-                >
-                  View Details
-                </button>
-              </div>
+              {referralCode ? (
+                <>
+                  <h2 className="text-4xl font-bold mb-2 text-amber-500">
+                    {referralEarnings.toFixed(2)}
+                  </h2>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">
+                      {referralStats?.totalReferrals || 0} referrals
+                    </p>
+                    <button
+                      onClick={() => setShowReferralModal(true)}
+                      className="text-xs px-2 py-1 bg-amber-500/20 text-amber-600 rounded hover:bg-amber-500/30 transition-colors"
+                    >
+                      View Details
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-muted-foreground mb-3">No referral code yet</p>
+                  <button
+                    onClick={() => setShowReferralModal(true)}
+                    className="w-full text-sm px-3 py-2 bg-amber-500 text-white rounded hover:bg-amber-600 transition-colors font-semibold"
+                  >
+                    Get Your Code & Start Earning
+                  </button>
+                </>
+              )}
             </div>
           </motion.div>
         </div>
@@ -662,21 +732,50 @@ export default function DashboardPage() {
                 {/* Your Referral Code */}
                 <div className="card p-4 bg-muted/50">
                   <h4 className="font-semibold mb-3">Your Referral Code</h4>
-                  <div className="flex items-center gap-2 mb-3">
-                    <input
-                      type="text"
-                      value={referralCode}
-                      readOnly
-                      className="flex-1 px-3 py-2 input text-sm"
-                    />
+                  {referralCode ? (
+                    <div className="flex items-center gap-2 mb-3">
+                      <input
+                        type="text"
+                        value={referralCode}
+                        readOnly
+                        className="flex-1 px-3 py-2 input text-sm font-mono bg-primary/10"
+                      />
+                      <button
+                        onClick={() => copyToClipboard(referralCode)}
+                        className="p-2 hover:bg-primary/20 rounded-lg transition-colors"
+                        title="Copy code"
+                      >
+                        <Copy className="w-5 h-5 text-primary" />
+                      </button>
+                    </div>
+                  ) : (
                     <button
-                      onClick={() => copyToClipboard(referralCode)}
-                      className="p-2 hover:bg-primary/20 rounded-lg transition-colors"
-                      title="Copy code"
+                      onClick={handleGenerateReferralCode}
+                      disabled={processingPayment}
+                      className="w-full btn-primary py-2 mb-3 flex items-center justify-center gap-2 disabled:opacity-50"
                     >
-                      <Copy className="w-5 h-5 text-primary" />
+                      {processingPayment ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-4 h-4" />
+                          Generate My Code
+                        </>
+                      )}
                     </button>
-                  </div>
+                  )}
+                  {referralCode && (
+                    <button
+                      onClick={handleGenerateReferralCode}
+                      disabled={processingPayment}
+                      className="w-full text-xs py-1 px-2 bg-amber-500/20 text-amber-600 rounded hover:bg-amber-500/30 transition-colors disabled:opacity-50"
+                    >
+                      {processingPayment ? 'Regenerating...' : 'Regenerate Code'}
+                    </button>
+                  )}
                 </div>
 
                 {/* Your Referral Link */}
