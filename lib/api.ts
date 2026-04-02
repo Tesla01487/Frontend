@@ -532,6 +532,37 @@ class ApiClient {
     });
   }
 
+  // Referral endpoints
+  async getMyReferralCode() {
+    return this.request('/referrals/my-code', {
+      method: 'GET',
+    });
+  }
+
+  async getReferralStats() {
+    return this.request('/referrals/stats', {
+      method: 'GET',
+    });
+  }
+
+  async getReferralEarnings() {
+    return this.request('/referrals/earnings', {
+      method: 'GET',
+    });
+  }
+
+  async depositWithReferral(data: {
+    amount: number;
+    paymentMethod: string;
+    referralCode?: string;
+    transactionReference?: string;
+  }) {
+    return this.request('/transactions/deposit-with-referral', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
   // Helper methods
   isAuthenticated(): boolean {
     return !!this.getToken();

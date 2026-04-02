@@ -13,7 +13,9 @@ import {
   QrCode,
   Plus,
   Loader2,
-  X
+  X,
+  Copy,
+  Share2
 } from 'lucide-react';
 import Navigation from '@/components/navigation';
 import { formatCurrency } from '@/lib/utils';
@@ -56,12 +58,18 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [showBuyModal, setShowBuyModal] = useState(false);
+  const [showReferralModal, setShowReferralModal] = useState(false);
   const [adminQRCodeImage, setAdminQRCodeImage] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'upi'>('wallet');
   const [purchaseAmount, setPurchaseAmount] = useState('');
   const [USDTAmount, setUSDTAmount] = useState('');
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [referralCode, setReferralCode] = useState('');
+  const [referralStats, setReferralStats] = useState<any>(null);
+  const [referralEarnings, setReferralEarnings] = useState(0);
+  const [referralCodeInput, setReferralCodeInput] = useState('');
   const USDT_RATE = 1; // 1 USD = 1 USDT (adjust as needed)
+  const REFERRAL_COMMISSION = 0.15; // 15% commission
 
   const fetchDashboardData = async () => {
     try {
@@ -89,8 +97,33 @@ export default function DashboardPage() {
     }
   };
 
+  const fetchReferralData = async () => {
+    try {
+      // Fetch referral code
+      const codeResponse = await api.getMyReferralCode();
+      if (codeResponse.success && codeResponse.data) {
+        setReferralCode(codeResponse.data.code);
+      }
+
+      // Fetch referral stats
+      const statsResponse = await api.getReferralStats();
+      if (statsResponse.success && statsResponse.data) {
+        setReferralStats(statsResponse.data);
+      }
+
+      // Fetch referral earnings
+      const earningsResponse = await api.getReferralEarnings();
+      if (earningsResponse.success && earningsResponse.data) {
+        setReferralEarnings(earningsResponse.data.totalEarnings || 0);
+      }
+    } catch (error) {
+      console.error('Referral data fetch error:', error);
+    }
+  };
+
   useEffect(() => {
     fetchDashboardData();
+    fetchReferralData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -126,18 +159,29 @@ export default function DashboardPage() {
 
       setProcessingPayment(true);
 
-      // Call backend to create deposit transaction
-      const response = await api.requestDeposit({
+      // Call backend to create deposit transaction with referral
+      const response = await api.depositWithReferral({
         amount: parseFloat(purchaseAmount),
         paymentMethod: 'wallet',
+        referralCode: referralCodeInput || undefined,
       });
 
       if (response.success) {
-        toast.success(`Deposit request submitted! USDT will be credited after admin approval.`);
+        // Calculate referral bonus earned (if they used someone's referral code)
+        const referralBonus = parseFloat(purchaseAmount) * REFERRAL_COMMISSION;
+        
+        toast.success(
+          referralCodeInput && referralBonus > 0
+            ? `Deposit request submitted! You'll receive ${referralBonus.toFixed(2)} USDT as referral bonus!`
+            : `Deposit request submitted! USDT will be credited after admin approval.`
+        );
+        
         setShowBuyModal(false);
         setPurchaseAmount('');
         setUSDTAmount('');
+        setReferralCodeInput('');
         fetchDashboardData(); // Fetch latest data after transaction
+        fetchReferralData(); // Update referral data
       } else {
         toast.error(response.message || 'Failed to submit deposit request');
       }
@@ -153,7 +197,18 @@ export default function DashboardPage() {
     { icon: Send, label: 'Send', href: '/transfer', color: 'from-primary to-secondary' },
     { icon: Download, label: 'Receive', href: '/wallet', color: 'from-secondary to-primary' },
     { icon: QrCode, label: 'QR Code', href: '/transfer?tab=qr', color: 'from-primary to-secondary' },
+    { icon: Plus, label: 'Buy Crypto', onClick: handleBuyUSDTs, color: 'from-amber-500 to-orange-500' },
   ];
+
+  const getReferralLink = () => {
+    if (!referralCode) return '';
+    return `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/register?ref=${referralCode}`;
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Copied to clipboard!');
+  };
 
   if (loading) {
     return (
@@ -200,7 +255,7 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* Balance Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {/* Total Balance Card */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -254,13 +309,44 @@ export default function DashboardPage() {
               </p>
             </div>
           </motion.div>
+
+          {/* Referral Earnings Card */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+            className="card p-6 relative overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => setShowReferralModal(true)}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-orange-500/10" />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm text-muted-foreground">Referral Earnings</p>
+                <Share2 className="w-5 h-5 text-amber-500" />
+              </div>
+              <h2 className="text-4xl font-bold mb-2 text-amber-500">
+                {referralEarnings.toFixed(2)}
+              </h2>
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  {referralStats?.totalReferrals || 0} referrals
+                </p>
+                <button
+                  onClick={() => setShowReferralModal(true)}
+                  className="text-xs px-2 py-1 bg-amber-500/20 text-amber-600 rounded hover:bg-amber-500/30 transition-colors"
+                >
+                  View Details
+                </button>
+              </div>
+            </div>
+          </motion.div>
         </div>
 
         {/* Quick Actions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.4 }}
           className="mb-8"
         >
           <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
@@ -297,7 +383,7 @@ export default function DashboardPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.5 }}
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold">Recent Transactions</h2>
@@ -413,6 +499,24 @@ export default function DashboardPage() {
                     />
                   </div>
 
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Referral Code (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={referralCodeInput}
+                      onChange={(e) => setReferralCodeInput(e.target.value)}
+                      placeholder="Enter referral code to get 15% bonus"
+                      className="input w-full text-sm"
+                    />
+                    {referralCodeInput && (
+                      <p className="text-xs text-success mt-2">
+                        ✓ You'll get {(parseFloat(purchaseAmount || '0') * REFERRAL_COMMISSION).toFixed(2)} USDT bonus!
+                      </p>
+                    )}
+                  </div>
+
                   {purchaseAmount && (
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
@@ -486,6 +590,154 @@ export default function DashboardPage() {
                 <p className="text-muted-foreground mb-2">Payment system not configured</p>
                 <p className="text-sm text-muted-foreground">
                   Please contact admin to set up payment details
+                </p>
+              </div>
+            )}
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Referral Modal */}
+      {showReferralModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setShowReferralModal(false)}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            onClick={(e) => e.stopPropagation()}
+            className="card p-8 max-w-md w-full relative"
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setShowReferralModal(false)}
+              className="absolute top-4 right-4 p-2 hover:bg-muted rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Title */}
+            <h2 className="text-2xl font-bold mb-6 text-center mt-2">
+              🎉 Referral Program
+            </h2>
+
+            {referralCode ? (
+              <div className="space-y-6">
+                {/* Earnings Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 card gradient-primary text-white rounded-lg"
+                >
+                  <p className="text-sm mb-1">Total Referral Earnings</p>
+                  <p className="text-3xl font-bold">{referralEarnings.toFixed(2)} USDT</p>
+                  <p className="text-xs text-white/80 mt-2">
+                    Earn 15% when someone uses your referral code
+                  </p>
+                </motion.div>
+
+                {/* Referral Stats */}
+                {referralStats && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="card p-4 text-center">
+                      <p className="text-2xl font-bold text-primary">
+                        {referralStats.totalReferrals || 0}
+                      </p>
+                      <p className="text-sm text-muted-foreground">Total Referrals</p>
+                    </div>
+                    <div className="card p-4 text-center">
+                      <p className="text-2xl font-bold text-success">
+                        {referralStats.activeReferrals || 0}
+                      </p>
+                      <p className="text-sm text-muted-foreground">Active Users</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Your Referral Code */}
+                <div className="card p-4 bg-muted/50">
+                  <h4 className="font-semibold mb-3">Your Referral Code</h4>
+                  <div className="flex items-center gap-2 mb-3">
+                    <input
+                      type="text"
+                      value={referralCode}
+                      readOnly
+                      className="flex-1 px-3 py-2 input text-sm"
+                    />
+                    <button
+                      onClick={() => copyToClipboard(referralCode)}
+                      className="p-2 hover:bg-primary/20 rounded-lg transition-colors"
+                      title="Copy code"
+                    >
+                      <Copy className="w-5 h-5 text-primary" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Your Referral Link */}
+                <div className="card p-4 bg-muted/50">
+                  <h4 className="font-semibold mb-3">Your Referral Link</h4>
+                  <div className="flex items-center gap-2 mb-3">
+                    <input
+                      type="text"
+                      value={getReferralLink()}
+                      readOnly
+                      className="flex-1 px-3 py-2 input text-xs"
+                    />
+                    <button
+                      onClick={() => copyToClipboard(getReferralLink())}
+                      className="p-2 hover:bg-primary/20 rounded-lg transition-colors"
+                      title="Copy link"
+                    >
+                      <Copy className="w-5 h-5 text-primary" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Share Buttons */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      const text = `Join me and get 15% bonus on your first purchase! Use my referral code: ${referralCode}`;
+                      if (typeof window !== 'undefined' && navigator.share) {
+                        navigator.share({
+                          title: 'CryptoUSDT Referral',
+                          text: text,
+                          url: getReferralLink(),
+                        });
+                      } else {
+                        copyToClipboard(text);
+                      }
+                    }}
+                    className="flex-1 btn-primary py-2 flex items-center justify-center gap-2"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Share
+                  </button>
+                </div>
+
+                {/* How It Works */}
+                <div className="card p-4 bg-muted/50">
+                  <h4 className="font-semibold mb-2">How It Works</h4>
+                  <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
+                    <li>Share your referral code or link</li>
+                    <li>Your friend uses it during sign up</li>
+                    <li>When they buy USDT, you get 15%</li>
+                    <li>Earnings added to your wallet instantly</li>
+                  </ol>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Share2 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground mb-2">Referral program loading...</p>
+                <p className="text-sm text-muted-foreground">
+                  Please refresh the page
                 </p>
               </div>
             )}
