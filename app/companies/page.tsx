@@ -26,12 +26,12 @@ interface InvestmentTier {
 }
 
 const investmentTiers: InvestmentTier[] = [
-  { id: '1', min: 100, max: 500, dailyReturn: 0.15, days: 260, description: 'Entry Level Investment' },
-  { id: '2', min: 501, max: 1000, dailyReturn: 0.25, days: 220, description: 'Silver Investment' },
-  { id: '3', min: 1001, max: 2000, dailyReturn: 0.30, days: 180, description: 'Gold Investment' },
-  { id: '4', min: 2001, max: 5000, dailyReturn: 0.35, days: 150, description: 'Platinum Investment' },
-  { id: '5', min: 5001, max: 10000, dailyReturn: 0.50, days: 120, description: 'Diamond Investment' },
-  { id: '6', min: 10001, max: 50000, dailyReturn: 0.75, days: 90, description: 'Elite Investment' },
+  { id: '1', min: 100, max: 500, dailyReturn: 1.50, days: 90, description: 'Entry Level Investment' },
+  { id: '2', min: 501, max: 1000, dailyReturn: 1.50, days: 70, description: 'Silver Investment' },
+  { id: '3', min: 1001, max: 2000, dailyReturn: 1.50, days: 60, description: 'Gold Investment' },
+  { id: '4', min: 2001, max: 5000, dailyReturn: 1.50, days: 50, description: 'Platinum Investment' },
+  { id: '5', min: 5001, max: 10000, dailyReturn: 1.50, days: 30, description: 'Diamond Investment' },
+  { id: '6', min: 10001, max: 50000, dailyReturn: 1.75, days: 30, description: 'Elite Investment' },
 ];
 
 export default function InvestmentPage() {
